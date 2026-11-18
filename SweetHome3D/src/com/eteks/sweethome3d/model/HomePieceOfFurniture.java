@@ -596,6 +596,13 @@ public class HomePieceOfFurniture extends HomeObject implements PieceOfFurniture
   }
 
   /**
+   * Return the volume of this piece of furniture.
+   */
+  public float getVolume() {
+    return getWidth() * getDepth() * getHeight();
+  }
+
+  /**
    * Returns the elevation at which should be placed an object dropped on this piece.
    * @return a percentage of the height of this piece. A negative value means that the piece 
    *         should be ignored when an object is dropped on it.

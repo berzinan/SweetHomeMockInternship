@@ -725,6 +725,8 @@ public class FurnitureTable extends JTable implements View, Printable {
 
   /**
    * Prints this component to make it fill <code>pageFormat</code> imageable size.
+   * A level column is added to the printed table when the home contain multiple levels, and the column isn't already displayed.
+   * Does not change the columns displayed on the screen.
    */
   public int print(Graphics g, PageFormat pageFormat, int pageIndex) throws PrinterException {
     // Create a printable column model from the column model of this table 
@@ -750,8 +752,24 @@ public class FurnitureTable extends JTable implements View, Printable {
           return headerRendererLabel;
         }
       };
-    for (int columnIndex = 0, n = columnModel.getColumnCount(); columnIndex < n; columnIndex++) {
-      final TableColumn tableColumn = columnModel.getColumn(columnIndex);
+    // Copy displayed columns, and add a level column when the home has levels.
+    List<TableColumn> printedColumns = Collections.list(columnModel.getColumns());
+    boolean levelColumnDisplayed = false;
+    for (TableColumn column : printedColumns) {
+      if (column.getIdentifier() == HomePieceOfFurniture.SortableProperty.LEVEL) {
+        levelColumnDisplayed = true;
+        break;
+      }
+    }
+    Home home = ((FurnitureTreeTableModel)getModel()).home;
+    if (!levelColumnDisplayed && !home.getLevels().isEmpty() &&
+        columnModel instanceof FurnitureTableColumnModel) {
+      TableColumn levelColumn = ((FurnitureTableColumnModel)columnModel).availableColumns.get(
+          HomePieceOfFurniture.SortableProperty.LEVEL);
+      // Insert Level column after first column
+      printedColumns.add(Math.min(1, printedColumns.size()), levelColumn);
+    }
+    for (final TableColumn tableColumn : printedColumns) {
       // Create a printable column from existing table column
       TableColumn printableColumn = new TableColumn();
       printableColumn.setIdentifier(tableColumn.getIdentifier());
